@@ -13,7 +13,7 @@ Petly
 **Data source:** Petfinder API (<https://www.petfinder.com/developers/v2/docs/>) and user inputted data.
 
 **Database Schema:**
-![Alt text](https://imgur.com/a/N42ZU4K "Schema")
+<https://imgur.com/a/N42ZU4K>
 
 (Note: Organizations are stored on the API and as such are not stored in the database)
 
@@ -30,10 +30,6 @@ Petly
 ● Users can leave ratings and reviews on organizations
 
 ● Users can see where organizations and users are on a map so they can see who is nearby
-
-
-
-
 
 ● Users can set up alerts so they can get email notifications when new kinds of pets they like are available
 
