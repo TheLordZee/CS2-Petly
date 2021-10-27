@@ -13,7 +13,7 @@ Petly
 **Data source:** Petfinder API (<https://www.petfinder.com/developers/v2/docs/>) and user inputted data.
 
 **Database Schema:**
-![](https://i.imgur.com/ffA8Gle.png "Schema")
+![Database Schema](https://i.imgur.com/ffA8Gle.png "Schema")
 
 (Note: Organizations are stored on the API and as such are not stored in the database)
 
