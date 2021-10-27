@@ -1,6 +1,4 @@
-﻿
-
-Petly
+﻿# Petly
 
 **Tech Stack:** React, Node, and Express
 
