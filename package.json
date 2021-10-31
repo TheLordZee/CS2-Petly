@@ -1,0 +1,30 @@
+{
+  "name": "petly",
+  "version": "1.0.0",
+  "description": "**Tech Stack:** React, Node, and Express",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheLordZee/CS2-Petly.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TheLordZee/CS2-Petly/issues"
+  },
+  "homepage": "https://github.com/TheLordZee/CS2-Petly#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
+    "pg": "^8.7.1"
+  }
+}
