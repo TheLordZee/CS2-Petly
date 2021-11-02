@@ -27,6 +27,7 @@ describe("authenticate", function () {
     test("works", async function () {
       const user = await User.authenticate("u1", "password1");
       expect(user).toEqual({
+        id: 1,
         username: "u1",
         firstName: "U1F",
         lastName: "U1L",
@@ -77,7 +78,10 @@ describe("register", function () {
         birthDay: '01/01/2021',
         password: "password"
       });
-      expect(user).toEqual(newUser);
+      expect(user).toEqual({
+        id: 3,
+        ...newUser
+      });
       const found = await db.query("SELECT * FROM users WHERE username = 'test'");
       expect(found.rows.length).toEqual(1);
       expect(found.rows[0].password.startsWith("$2b$")).toEqual(true);
@@ -97,5 +101,93 @@ describe("register", function () {
       } catch (err) {
         expect(err instanceof BadRequestError).toBeTruthy();
       }
+  });
+});
+
+/************************************** update */
+
+describe("update", function () {
+  const updateData = {
+    firstName: "NewF",
+    lastName: "NewL",
+    email: "new@email.com",
+    address: "newaddress",
+    profilePic: "newpp"
+  };
+
+  test("works", async function () {
+    let user = await User.update("u1", updateData);
+
+    console.log("user", user)
+    expect(user).toEqual({
+      id: 1,
+      username: "u1",
+      phone: "(111)111-1111",
+      birthDay: date,
+      ...updateData,
+      address: "newaddress",
+
     });
   });
+
+  test("works: set password", async function () {
+    let user = await User.update("u1", {
+      password: "new",
+    });
+    expect(user).toEqual({
+      id: 1,
+        username: "u1",
+        firstName: "U1F",
+        lastName: "U1L",
+        email: "u1@email.com",
+        address: "address1",
+        phone: "(111)111-1111",
+        birthDay: date,
+        profilePic: "pp1"
+    });
+    const found = await db.query("SELECT * FROM users WHERE username = 'u1'");
+    expect(found.rows.length).toEqual(1);
+    expect(found.rows[0].password.startsWith("$2b$")).toEqual(true);
+  });
+
+  test("not found if no such user", async function () {
+    try {
+      await User.update("nope", {
+        firstName: "test",
+      });
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+  test("bad request if no data", async function () {
+    expect.assertions(1);
+    try {
+      await User.update("c1", {});
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+});
+
+/************************************** remove */
+
+describe("remove", function () {
+  test("works", async function () {
+    await User.remove("u1");
+    const res = await db.query(
+        "SELECT * FROM users WHERE username='u1'");
+    expect(res.rows.length).toEqual(0);
+  });
+
+  test("not found if no such user", async function () {
+    try {
+      await User.remove("nope");
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});

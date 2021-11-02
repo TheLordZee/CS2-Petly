@@ -6,14 +6,31 @@ const { BCRYPT_WORK_FACTOR } = require("../config")
 
 async function commonBeforeAll() {
     // noinspection SqlWithoutWhere
+    await db.query("DELETE FROM pet_attributes");
+    // noinspection SqlWithoutWhere
+    await db.query("DELETE FROM pet_breeds");
+    // noinspection SqlWithoutWhere
+    await db.query("DELETE FROM pet_tags");
+    // noinspection SqlWithoutWhere
+    await db.query("DELETE FROM pet_environments");
+    // noinspection SqlWithoutWhere
+    await db.query("DELETE FROM attributes");
+    await db.query("ALTER SEQUENCE attributes_id_seq RESTART WITH 1");  
+    // noinspection SqlWithoutWhere
+    await db.query("DELETE FROM breeds");
+    await db.query("ALTER SEQUENCE breeds_id_seq RESTART WITH 1");
+    // noinspection SqlWithoutWhere
+    await db.query("DELETE FROM environments");
+    await db.query("ALTER SEQUENCE environments_id_seq RESTART WITH 1");
+    // noinspection SqlWithoutWhere
+    await db.query("DELETE FROM tags");
+    await db.query("ALTER SEQUENCE tags_id_seq RESTART WITH 1");
+    // noinspection SqlWithoutWhere
     await db.query("DELETE FROM pets");
     await db.query("ALTER SEQUENCE pets_id_seq RESTART WITH 1");
     // noinspection SqlWithoutWhere
     await db.query("DELETE FROM users");
     await db.query("ALTER SEQUENCE users_id_seq RESTART WITH 1");
-    // noinspection SqlWithoutWhere
-    await db.query("DELETE FROM types");
-    await db.query("ALTER SEQUENCE types_id_seq RESTART WITH 1");
 
     await db.query(`
           INSERT INTO users(first_name, 
@@ -37,18 +54,67 @@ async function commonBeforeAll() {
           encrypt('(222)222-2222')
         ]
     );
+  
+    await db.query(
+      `INSERT INTO pets(user_id, url, type, species, age, sex, size, coat, colors, name, description, photos, videos, status, uploaded)
+      VALUES 
+            (1, 'url1', 'dog', 'dog', 'Young', 'Male', 'large', 'long', 'gold', 'Jack', 'He is a very good boi', 'photos1', 'videos1', 'adoptable', '01/01/2021'),
+            (2, 'url2', 'rabbit', 'rabbit', 'Mature', 'Female', 'small', 'long', 'black', 'Jello', 'She is an adorable fuzzball', 'photos1', 'videos2', 'adoptable', '01/01/2021')`
+    )
+  
+    await db.query(
+      `INSERT INTO breeds (name)
+        VALUES('Golden Retriever'),
+              ('American Fuzzy Lop')`
+    )
+    
+    await db.query(
+      `INSERT INTO attributes (name)
+        VALUES('spayed_neutered'),
+              ('special_needs')`
+    )
+  
+    await db.query(
+      `INSERT INTO environments (name)
+        VALUES('children'),
+              ('dogs')`
+    )
+  
+    await db.query(
+      `INSERT INTO tags (name)
+        VALUES('cute'),
+              ('playful')`
+    )
+  
+    await db.query(
+      `INSERT INTO pet_breeds 
+        VALUES (1, 1),
+              (2, 2)`
+    )
+  
+    await db.query(
+      `INSERT INTO pet_attributes
+        VALUES (1, 1),
+              (2, 2)`
+    )
+  
+    await db.query(
+      `INSERT INTO pet_environments
+        VALUES (1, 2),
+              (2, 1)`
+    )
+  
+    await db.query(
+      `INSERT INTO pet_tags
+        VALUES (1, 1),
+              (1, 2),
+              (2, 1),
+              (2, 2)`
+    )
   }
 
-  await db.query(
-    `INSERT INTO types (name)
-    VALUES ('dog', 'cat')`
-  )
-
-  await db.query(
-    `INSERT INTO pets(user_id, url, type, species, age, sex, size, coat, colors, name, description, photos, videos, status)
-    VALUES (1, 'url1', 1, 'dog', 'Young')`
-  )
   
+
   async function commonBeforeEach() {
     await db.query("BEGIN");
   }

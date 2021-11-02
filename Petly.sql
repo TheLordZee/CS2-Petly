@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS breeds CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS pets CASCADE;
 DROP TABLE IF EXISTS organizition_ratings CASCADE;
-DROP TABLE IF EXISTS types;
+DROP TYPE IF EXISTS ANIMAL_TYPE;
 DROP TYPE IF EXISTS SEX;
 
 CREATE TABLE users (
@@ -27,20 +27,14 @@ CREATE TABLE users (
 );
 
 CREATE TYPE SEX AS ENUM ('Male', 'Female', 'Unknown');
-CREATE TYPE ANIMAL_TYPE AS ENUM ('dog', 'cat', 'rabbit', 'small & furry', 'horse', 'bird', 'scales, fins & other', 'barnyard')
-
-
-CREATE TABLE types (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL
-)
+CREATE TYPE ANIMAL_TYPE AS ENUM ('dog', 'cat', 'rabbit', 'small & furry', 'horse', 'bird', 'scales, fins & other', 'barnyard');
 
 CREATE TABLE pets (
   id SERIAL PRIMARY KEY,
   organization_id TEXT,
   user_id int REFERENCES users ON DELETE CASCADE,
   url TEXT,
-  type INT REFERENCES types ON CASCADE DELETE,
+  type ANIMAL_TYPE NOT NULL,
   species TEXT NOT NULL,
   age TEXT NOT NULL,
   sex SEX NOT NULL,
@@ -48,7 +42,7 @@ CREATE TABLE pets (
   coat TEXT NOT NULL,
   colors TEXT NOT NULL,
   name TEXT DEFAULT 'N/A',
-  desription TEXT,
+  description TEXT,
   photos TEXT,
   videos TEXT,
   status TEXT NOT NULL,
@@ -86,8 +80,8 @@ CREATE TABLE attributes (
 
 CREATE TABLE pet_attributes (
   pet_id int REFERENCES pets ON DELETE CASCADE,
-  attibute_id int REFERENCES attributes ON DELETE CASCADE,
-  PRIMARY KEY (pet_id, attibute_id)
+  attribute_id int REFERENCES attributes ON DELETE CASCADE,
+  PRIMARY KEY (pet_id, attribute_id)
 );
 
 CREATE TABLE environments (

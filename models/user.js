@@ -20,7 +20,8 @@ class User {
     **/
     static async authenticate(username, password){
         const res = await db.query(
-            `SELECT first_name AS "firstName",
+            `SELECT id,
+                first_name AS "firstName",
                 last_name AS "lastName",
                 password,
                 username,
@@ -92,7 +93,8 @@ class User {
              birth_day, 
              profile_pic)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            RETURNING first_name AS "firstName", 
+            RETURNING id,
+                first_name AS "firstName", 
                 last_name AS "lastName", 
                 username, 
                 address, 
@@ -135,7 +137,8 @@ class User {
 
   static async findAll() {
     const res = await db.query(
-          `SELECT first_name AS "firstName",
+          `SELECT id,
+            first_name AS "firstName",
             last_name AS "lastName",
             username,
             address,
@@ -169,7 +172,8 @@ class User {
 
     static async get(username) {
         const userRes = await db.query(
-              `SELECT first_name AS "firstName",
+              `SELECT id, 
+                first_name AS "firstName",
                 last_name AS "lastName",
                 username,
                 address,
@@ -197,7 +201,8 @@ class User {
    * Data can include:
    *   {  
    *    username,
-   *    fullName, 
+   *    firstName, 
+   *    lastName,
    *    username,
    *    address,
    *    email, 
@@ -209,7 +214,8 @@ class User {
    *
    * Returns { 
    *    username,
-   *    fullName, 
+   *    firstName, 
+   *    lastName, 
    *    username,
    *    address,
    *    email, 
@@ -229,6 +235,12 @@ class User {
     if (data.password) {
       data.password = await bcrypt.hash(data.password, BCRYPT_WORK_FACTOR);
     }
+    if(data.phone){
+      data.phone = encrypt(data.phone)
+    }
+    if(data.address){
+      data.address = encrypt(data.address)
+    }
 
     const { setCols, values } = sqlForPartialUpdate(
         data,
@@ -239,17 +251,18 @@ class User {
           profilePic: "profile_pic"
         });
     const usernameVarIdx = "$" + (values.length + 1);
-
+   
     const querySql = `UPDATE users 
                       SET ${setCols} 
                       WHERE username = ${usernameVarIdx} 
-                      RETURNING first_name AS "firstName", 
+                      RETURNING id,
+                      first_name AS "firstName", 
                         last_name AS "lastName", 
                         username, 
                         address, 
                         email, 
                         phone, 
-                        birth_day AS birthDay, 
+                        birth_day AS "birthDay", 
                         profile_pic AS "profilePic"`;
     const result = await db.query(querySql, [...values, username]);
     const user = result.rows[0];
@@ -257,6 +270,9 @@ class User {
     if (!user) throw new NotFoundError(`No user: ${username}`);
 
     delete user.password;
+    
+    user.phone = decrypt(user.phone)
+    user.address = decrypt(user.address)
     return user;
   }
 
@@ -273,6 +289,18 @@ class User {
     const user = result.rows[0];
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
+  }
+
+  static async checkExists(id){
+    let res = await db.query(
+      `SELECT id
+      FROM users
+      WHERE id = $1`,
+      [id]
+    )
+
+    if(res.rows[0]) return true;
+    return false;
   }
 }
 

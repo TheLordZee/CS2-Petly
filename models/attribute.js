@@ -5,7 +5,6 @@ const { BadRequestError, NotFoundError, ExpressError } = require("../expressErro
  * 
  */
 
-const db = require("../db");
 
 class Attribute {
     constructor(tableName){
@@ -16,21 +15,15 @@ class Attribute {
      * 
      * Returns { name }
      */    
-    static async create(name){
+     async create(name){
         name = name.toLowerCase()
-        const duplicateCheck = await db.query(
-            `SELECT name
-            FROM ${this.table}
-            WHERE name = $2`,
-            [ name ]
-        )
-
-        if(duplicateCheck.rows[0]){
+        const duplicateCheck = this.exists(name);
+        if(duplicateCheck){
             throw new BadRequestError(`Duplicate ${this.table}: ${name}`)
         }
 
         const res = await db.query(
-            `INSERT INTO ${this.table} (name)
+            `INSERT INTO ${this.table}s (name)
             VALUES ($1)
             RETURNING name`,
             [ name ]
@@ -44,36 +37,48 @@ class Attribute {
     /** Gets all attributes from the table
      * 
      */
-    static async getAll(){
+     async getAll(){
         const res = await db.query(
             `SELECT name
-            FROM ${this.table}
+            FROM ${this.table}s
             ORDER BY name`
         )
-
         return res.rows;
     }
 
     /** Given a name, returns turn or false if it already exists as an attribute
      * 
      */
-    static async exists(name){
+     async exists(name){
         const res = await db.query(
             `SELECT name
-            FROM ${this.table}
+            FROM ${this.table}s
             WHERE name = $1`,
             [name]
         )
-
         return (res.rows[0]) ? true : false;
     }
 
+    /** Given a name, returns id if exists
+     * 
+     */
+     async getId(name){
+        const res = await db.query(
+            `SELECT id
+            FROM ${this.table}s
+            WHERE name = $1`,
+            [name]
+        )
+        return res.rows[0];
+    }
+
     /** Given a pet id, returns the attributes of the pet*/
-    static async getByPetId(petId){
+     async getByPetId(petId){
         const res = await db.query(
             `SELECT a.name
-            FROM ${this.table} a
-            JOIN pet_${this.table} pa
+            FROM ${this.table}s AS a
+            JOIN pet_${this.table}s AS pa
+            ON a.id = ${this.table}_id
             WHERE pa.pet_id = $1`,
             [petId]
         )
@@ -85,12 +90,23 @@ class Attribute {
         
         return attributes;
     }
+
+    /** Given an pet id and attribute id, adds inserts them into the database */
+    async addToPet(petId, attributeId){
+        const res = await db.query(
+            `INSERT INTO pet_${this.table}s (pet_id, ${this.table}_id)
+             VALUES ($1, $2)
+             RETURNING pet_id, ${this.table}_id`,
+            [petId, attributeId]
+        )
+        return res.rows[0]
+    }
 }
 
-const Tags = new Attribute("tags");
-const Breeds = new Attribute("breeds");
-const Attributes = new Attribute("attributes");
-const Environments = new Attribute("environments");
+const Tags = new Attribute("tag");
+const Breeds = new Attribute("breed");
+const Attributes = new Attribute("attribute");
+const Environments = new Attribute("environment");
 
 module.exports = {
     Tags,
