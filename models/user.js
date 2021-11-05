@@ -6,15 +6,15 @@ const { encrypt, decrypt } = require("../helpers/encrypt")
 const { sqlForPartialUpdate } = require("../helpers/sql")
 const { BadRequestError, NotFoundError, ExpressError, UnauthorizedError } = require("../expressError")
 
-
-const { BCRYPT_WORK_FACTOR } = require("../config")
+const { BCRYPT_WORK_FACTOR } = require("../config");
+const Pet = require("./pet");
 
 /** Related functions for users */
 
 class User {
     /** authenticate user with username, password and decrypts phone number and address.
     *   
-    *   Returns { username, fullName, username, address, email, phone, birthDay, profilePic}
+    *   Returns { username, firstName, lastName, username, address, email, phone, birthDay, profilePic}
     *
     * Throws UnauthorizedError is user not found or wrong password.
     **/
@@ -36,17 +36,19 @@ class User {
         )
 
         const user = res.rows[0];
-        if(!user) throw new UnauthorizedError("Invalid username/password");
-        if(user){
-            // compare hashed password to a new hash from password
-            const isValid = await bcrypt.compare(password, user.password)
-            if(isValid){
-                delete user.password;
-                user.phone = decrypt(user.phone);
-                user.address = decrypt(user.address);
-                return user;
-            }
+        if(!user) throw new UnauthorizedError("Invalid username");
+          
+        // compare hashed password to a new hash from password
+        const isValid = await bcrypt.compare(password, user.password)
+        if(isValid){
+            delete user.password;
+            user.phone = decrypt(user.phone);
+            user.address = decrypt(user.address);
+            return user;
+        } else {
+          throw new UnauthorizedError("Invalid password!")
         }
+        
     }
 
     /** Register user with data. Encrypts phone number and address, if included
@@ -149,7 +151,10 @@ class User {
            FROM users
            ORDER BY username`
     );
-
+    for(let user of res.rows){
+      user.address = decrypt(user.address)
+      user.phone = decrypt(user.phone)
+    }
     return res.rows;
   }
 
@@ -164,9 +169,14 @@ class User {
    *    email, 
    *    phone,
    *    birthDay,
-   *    profilePic
+   *    profilePic,
+   *    pets
    *  }
-   *
+   *  
+   *  Where pets is [{
+   *    id, organizationId, userId,  url, type, species,  age, sex, size, coat, colors, name, description, photos, videos, status, uploaded
+   * }, ...] 
+   * 
    * Throws NotFoundError if user not found.
    **/
 
@@ -189,7 +199,10 @@ class User {
         const user = userRes.rows[0];
     
         if (!user) throw new NotFoundError(`No user: ${username}`);
-    
+        const pets = await Pet.getPetsByUploader(user.id, "user")
+        user.pets = pets;
+        user.phone = decrypt(user.phone)
+        user.address = decrypt(user.address)
         return user;
     }
 
@@ -208,12 +221,10 @@ class User {
    *    email, 
    *    phone,
    *    birthDay,
-   *    profilePic,
-   *    pets
+   *    profilePic
    *  }
    *
    * Returns { 
-   *    username,
    *    firstName, 
    *    lastName, 
    *    username,
@@ -303,5 +314,20 @@ class User {
     return false;
   }
 }
+
+// try{
+//   User.register({
+//     username: "Admin",
+//     firstName: "Admin",
+//     lastName: "Admin",
+//     email: "admin3@user.com",
+//     password: "adminPassword",
+//     address: "Indiana",
+//     phone: "3333333333",
+//     birthDay: "11/04/2021",
+//   });
+// } catch(e){
+
+// }
 
 module.exports = User;

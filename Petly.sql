@@ -22,7 +22,7 @@ CREATE TABLE users (
   email TEXT NOT NULL
     CHECK (position('@' IN email) > 1),
   phone TEXT,
-  birth_day DATE NOT NULL,
+  birth_day TEXT NOT NULL,
   profile_pic TEXT
 );
 
@@ -45,7 +45,7 @@ CREATE TABLE pets (
   description TEXT,
   photos TEXT,
   videos TEXT,
-  status TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT "Adoptable",
   uploaded DATE NOT NULL DEFAULT CURRENT_DATE
   CHECK ((organization_id != NULL OR user_id != NULL) 
     AND NOT (organization_id != NULL AND user_id != NULL))

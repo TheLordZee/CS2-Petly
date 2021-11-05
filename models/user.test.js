@@ -19,7 +19,7 @@ beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
 
-const date = new Date(`2021-01-01T05:00:00.000Z`)
+const date = `01/01/2021`;
 
 /************************************** authenticate */
 

@@ -25,7 +25,7 @@ class Attribute {
         const res = await db.query(
             `INSERT INTO ${this.table}s (name)
             VALUES ($1)
-            RETURNING name`,
+            RETURNING id, name`,
             [ name ]
         )
 
@@ -100,6 +100,43 @@ class Attribute {
             [petId, attributeId]
         )
         return res.rows[0]
+    }
+
+    /**Takes an array of attribute names and adds them to the pet */
+    async addAllToPet(petId, attributes){
+        if(attributes.length === 0) return;
+        let ids = [];
+        for(let a of attributes){
+            const id = await this.getId(a)
+            if(!id){
+                const att = await this.create(a);
+                ids.push(att.id)
+            } else{
+                if(ids.indexOf(id.id) === -1){
+                    ids.push(id.id)
+                }
+            }
+        }
+        console.log(ids)
+        let query = `INSERT INTO pet_${this.table}s (pet_id, ${this.table}_id) VALUES`
+        
+        for(let i = 0; i < ids.length; i++){
+            query += ` (${petId}, ${ids[i]})`;
+            if(ids[i+1]){
+                query += ','
+            }
+        }
+        console.log(query)
+        try{
+        const res = await db.query(
+            query, []
+        )
+
+        return res.rows[0]
+        }catch(e){
+            console.log(e)
+        }
+
     }
 }
 

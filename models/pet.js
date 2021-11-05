@@ -7,7 +7,7 @@ const { sqlForPartialUpdate } = require("../helpers/sql")
 const { BadRequestError, NotFoundError, ForbiddenError, UnauthorizedError } = require("../expressError")
 const {Tags, Breeds, Attributes, Environments} = require("./attribute")
 const User = require("./user")
-
+const makeFilterQuery = require("../helpers/filter")
 
 const { BCRYPT_WORK_FACTOR } = require("../config")
 
@@ -38,53 +38,85 @@ class Pet {
           description="", 
           photos="", 
           videos="", 
-          status, 
-          uploaded 
+          status="",
+          uploaded,
+          tags=[],
+          breeds=[],
+          attributes=[],
+          environments=[]
         }){
-
-        const res = await db.query(
-            `INSERT INTO pets
-            (organization_id, 
-              user_id, 
-              url, 
-              type, 
-              species, 
-              age, 
-              sex, 
-              size, 
-              coat, 
-              colors, 
-              name, 
-              description, 
-              photos, 
-              videos, 
-              status, 
-              uploaded)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-            RETURNING id,
-                organization_id AS "organizationId", 
-                user_id AS "userId", 
-                url, 
-                type, 
-                species, 
-                age, 
-                sex, 
-                size, 
-                coat, 
-                colors, 
-                name, 
-                description, 
-                photos, 
-                videos, 
-                status, 
-                uploaded`,
-            [
-                organizationId, userId,  url, type, species,  age, sex, size, coat, colors, name, description, photos, videos, status, uploaded
-            ]
-        );
-
-        const pet = res.rows[0];
-        return pet;
+            // let currentDate = new Date();
+            // let cDay = currentDate.getDate();
+            // let cMonth = currentDate.getMonth() + 1;
+            // let cYear = currentDate.getFullYear();
+            // const uploaded = cDay + "/" + cMonth + "/" + cYear
+            
+            const res = await db.query(
+                `INSERT INTO pets
+                (organization_id, 
+                  user_id, 
+                  url, 
+                  type, 
+                  species, 
+                  age, 
+                  sex, 
+                  size, 
+                  coat, 
+                  colors, 
+                  name, 
+                  description, 
+                  photos, 
+                  videos, 
+                  status, 
+                  uploaded)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+                RETURNING id,
+                    organization_id AS "organizationId", 
+                    user_id AS "userId", 
+                    url, 
+                    type, 
+                    species, 
+                    age, 
+                    sex, 
+                    size, 
+                    coat, 
+                    colors, 
+                    name, 
+                    description, 
+                    photos, 
+                    videos, 
+                    status, 
+                    uploaded`,
+                [
+                  organizationId, 
+                  userId, 
+                  url, 
+                  type, 
+                  species, 
+                  age, 
+                  sex, 
+                  size, 
+                  coat, 
+                  colors, 
+                  name, 
+                  description, 
+                  photos, 
+                  videos, 
+                  status, 
+                  uploaded
+                ]
+            );
+            const pet = res.rows[0];
+            await Tags.addAllToPet(pet.id, tags)
+            pet.tags = await Tags.getByPetId(pet.id)
+            await Breeds.addAllToPet(pet.id, breeds)
+            pet.breeds = await Breeds.getByPetId(pet.id)
+            await Environments.addAllToPet(pet.id, environments)
+            pet.environments = await Environments.getByPetId(pet.id)
+            await Attributes.addAllToPet(pet.id, attributes)
+            pet.attributes = await Attributes.getByPetId(pet.id)
+            return pet;
+        
     }
 
     /** Find all pets.
@@ -94,26 +126,30 @@ class Pet {
    * }, ...]
    **/
 
-  static async findAll() {
+  static async findAll(filter = {}) {
+    const query = (Object.keys(filter).length > 0) ? makeFilterQuery(filter) : {query:"", vals: []};
     const res = await db.query(
-          `SELECT id, 
-            organization_id AS "organizationId", 
-            user_id AS "userId",  
-            url, 
-            type, 
-            species, 
-            age, 
-            sex, 
-            size, 
-            coat, 
-            colors, 
-            name, 
-            description, 
-            photos, 
-            videos, 
-            status, 
-            uploaded
-           FROM pets`
+          `SELECT 
+            p.id, 
+            p.organization_id AS "organizationId", 
+            p.user_id AS "userId",  
+            p.url, 
+            p.type, 
+            p.species, 
+            p.age, 
+            p.sex, 
+            p.size, 
+            p.coat, 
+            p.colors, 
+            p.name, 
+            p.description, 
+            p.photos, 
+            p.videos, 
+            p.status, 
+            p.uploaded
+           FROM pets AS p
+           ${query.query}`,
+          query.vals
     );
 
     return res.rows;

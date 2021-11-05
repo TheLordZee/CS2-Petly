@@ -1,0 +1,217 @@
+{
+    "$id": "http://example.com/example.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "examples": [
+        {
+            "userId": 13,
+            "organizationId": "NC77",
+            "url": "url1",
+            "type": "dog",
+            "species": "dog",
+            "age": "Young",
+            "sex": "Male",
+            "size": "large",
+            "coat": "long",
+            "colors": "gold",
+            "name": "Jack",
+            "description": "He is a very good boi",
+            "photos": "photos1",
+            "videos": "videos1",
+            "status": "adoptable",
+            "tags": [
+                "cute"
+            ],
+            "breeds": [
+                "Husky"
+            ],
+            "environments": [
+                "Kids"
+            ],
+            "attributes": [
+                "spayed"
+            ]
+        }
+    ],
+    "required": [
+        "type",
+        "species",
+        "age",
+        "sex",
+        "size",
+        "coat",
+        "colors",
+        "name"
+    ],
+    "title": "The root schema",
+    "type": "object",
+    "properties": {
+        "userId": {
+            "type": "integer",
+            "examples": [
+                13
+            ]
+        },
+        "organizationId": {
+            "type": "string",
+            "examples": [
+                "NC77"
+            ]
+        },
+        "url": {
+            "type": "string",
+            "examples": [
+                "url1"
+            ]
+        },
+        "type": {
+            "type": "string",
+            "examples": [
+                "dog"
+            ]
+        },
+        "species": {
+            "type": "string",
+            "examples": [
+                "dog"
+            ]
+        },
+        "age": {
+            "type": "string",
+            "examples": [
+                "Young"
+            ]
+        },
+        "sex": {
+            "type": "string",
+            "examples": [
+                "Male"
+            ]
+        },
+        "size": {
+            "type": "string",
+            "examples": [
+                "large"
+            ]
+        },
+        "coat": {
+            "type": "string",
+            "examples": [
+                "long"
+            ]
+        },
+        "colors": {
+            "type": "string",
+            "examples": [
+                "gold"
+            ]
+        },
+        "name": {
+            "type": "string",
+            "examples": [
+                "Jack"
+            ]
+        },
+        "description": {
+            "type": "string",
+            "examples": [
+                "He is a very good boi"
+            ]
+        },
+        "photos": {
+            "type": "string",
+            "examples": [
+                "photos1"
+            ]
+        },
+        "videos": {
+            "type": "string",
+            "examples": [
+                "videos1"
+            ]
+        },
+        "status": {
+            "type": "string",
+            "examples": [
+                "adoptable"
+            ]
+        },
+        "tags": {
+            "type": "array",
+            "examples": [
+                [
+                    "cute"
+                ]
+            ],
+            "additionalItems": true,
+            "items": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "examples": [
+                            "cute"
+                        ]
+                    }
+                ]
+            }
+        },
+        "breeds": {
+            "type": "array",
+            "default": [],
+            "examples": [
+                [
+                    "Husky"
+                ]
+            ],
+            "additionalItems": true,
+            "items": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "examples": [
+                            "Husky"
+                        ]
+                    }
+                ]
+            }
+        },
+        "environments": {
+            "type": "array",
+            "examples": [
+                [
+                    "Kids"
+                ]
+            ],
+            "additionalItems": true,
+            "items": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "examples": [
+                            "Kids"
+                        ]
+                    }
+                ]
+            }
+        },
+        "attributes": {
+            "type": "array",
+            "examples": [
+                [
+                    "spayed"
+                ]
+            ],
+            "additionalItems": true,
+            "items": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "examples": [
+                            "spayed"
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "additionalProperties": false
+}

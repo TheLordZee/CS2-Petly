@@ -1,0 +1,45 @@
+{
+    "$id": "http://example.com/example.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "required": [
+        "firstName",
+        "lastName",
+        "username",
+        "address",
+        "email",
+        "birthDay",
+        "password"
+    ],
+    "title": "The root schema",
+    "type": "object",
+    "properties": {
+        "firstName": {
+            "type": "string"
+        },
+        "lastName": {
+            "type": "string"
+        },
+        "username": {
+            "type": "string"
+        },
+        "password": {
+            "type": "string"
+        },
+        "address": {
+            "type": "string"
+        },
+        "email": {
+            "type": "string"
+        },
+        "phone": {
+            "type": "string"
+        },
+        "birthDay": {
+            "type": "string"
+        },
+        "profilePic": {
+            "type": "string"
+        }
+    },
+    "additionalProperties": false
+}
