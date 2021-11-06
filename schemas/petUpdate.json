@@ -33,30 +33,11 @@
         }
     ],
     "required": [
-        "type",
-        "species",
-        "age",
-        "sex",
-        "size",
-        "coat",
-        "colors",
-        "name"
+        
     ],
     "title": "The root schema",
     "type": "object",
     "properties": {
-        "userId": {
-            "type": "integer",
-            "examples": [
-                13
-            ]
-        },
-        "organizationId": {
-            "type": "string",
-            "examples": [
-                "NC77"
-            ]
-        },
         "url": {
             "type": "string",
             "examples": [

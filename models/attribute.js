@@ -17,7 +17,7 @@ class Attribute {
      */    
      async create(name){
         name = name.toLowerCase()
-        const duplicateCheck = this.exists(name);
+        const duplicateCheck = await this.exists(name);
         if(duplicateCheck){
             throw new BadRequestError(`Duplicate ${this.table}: ${name}`)
         }
@@ -37,7 +37,7 @@ class Attribute {
     /** Gets all attributes from the table
      * 
      */
-     async getAll(){
+    async getAll(){
         const res = await db.query(
             `SELECT name
             FROM ${this.table}s
@@ -49,11 +49,11 @@ class Attribute {
     /** Given a name, returns turn or false if it already exists as an attribute
      * 
      */
-     async exists(name){
+    async exists(name){
         const res = await db.query(
             `SELECT name
             FROM ${this.table}s
-            WHERE name = $1`,
+            WHERE name ILIKE $1`,
             [name]
         )
         return (res.rows[0]) ? true : false;
@@ -66,7 +66,7 @@ class Attribute {
         const res = await db.query(
             `SELECT id
             FROM ${this.table}s
-            WHERE name = $1`,
+            WHERE name ILIKE $1`,
             [name]
         )
         return res.rows[0];
@@ -104,20 +104,20 @@ class Attribute {
 
     /**Takes an array of attribute names and adds them to the pet */
     async addAllToPet(petId, attributes){
+        if(!attributes) throw new BadRequestError("No data!")
         if(attributes.length === 0) return;
         let ids = [];
         for(let a of attributes){
-            const id = await this.getId(a)
-            if(!id){
-                const att = await this.create(a);
-                ids.push(att.id)
-            } else{
+            const id = await this.getId(a);
+            if(id){
                 if(ids.indexOf(id.id) === -1){
                     ids.push(id.id)
                 }
-            }
+            }else{
+                const att = await this.create(a);
+                ids.push(att.id)
+            } 
         }
-        console.log(ids)
         let query = `INSERT INTO pet_${this.table}s (pet_id, ${this.table}_id) VALUES`
         
         for(let i = 0; i < ids.length; i++){
@@ -126,7 +126,6 @@ class Attribute {
                 query += ','
             }
         }
-        console.log(query)
         try{
         const res = await db.query(
             query, []
@@ -136,7 +135,6 @@ class Attribute {
         }catch(e){
             console.log(e)
         }
-
     }
 }
 

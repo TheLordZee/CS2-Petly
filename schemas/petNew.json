@@ -46,13 +46,19 @@
     "type": "object",
     "properties": {
         "userId": {
-            "type": "integer",
+            "type": [
+                "integer",
+                "null"
+            ],
             "examples": [
                 13
             ]
         },
         "organizationId": {
-            "type": "string",
+            "type": [
+                "string",
+                "null"
+            ],
             "examples": [
                 "NC77"
             ]
@@ -133,6 +139,12 @@
             "type": "string",
             "examples": [
                 "adoptable"
+            ]
+        },
+        "uploaded": {
+            "type":[
+                "string",
+                "null"
             ]
         },
         "tags": {

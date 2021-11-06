@@ -65,7 +65,6 @@ describe("POST /users", function () {
           lastName: "Last-newL",
           password: "password-new",
           email: "new@email.com",
-          isAdmin: true,
         });
     expect(resp.statusCode).toEqual(401);
   });
@@ -79,7 +78,6 @@ describe("POST /users", function () {
           lastName: "Last-newL",
           password: "password-new",
           email: "new@email.com",
-          isAdmin: true,
         })
         .set("authorization", `Bearer ${u1Token}`);;
     expect(resp.statusCode).toEqual(401);
@@ -104,7 +102,6 @@ describe("POST /users", function () {
           lastName: "Last-newL",
           password: "password-new",
           email: "not-an-email",
-          isAdmin: true,
         })
         .set("authorization", `Bearer ${a1Token}`);
     expect(resp.statusCode).toEqual(400);

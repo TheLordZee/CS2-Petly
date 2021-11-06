@@ -22,7 +22,7 @@ class Pet {
    *
    * Throws BadRequestError on duplicates.
    **/
-    static async create(
+  static async create(
         {
           organizationId, 
           userId, 
@@ -45,13 +45,14 @@ class Pet {
           attributes=[],
           environments=[]
         }){
-            // let currentDate = new Date();
-            // let cDay = currentDate.getDate();
-            // let cMonth = currentDate.getMonth() + 1;
-            // let cYear = currentDate.getFullYear();
-            // const uploaded = cDay + "/" + cMonth + "/" + cYear
-            
-            const res = await db.query(
+          if(!uploaded){
+            let currentDate = new Date();
+            let cDay = currentDate.getDate();
+            let cMonth = currentDate.getMonth() + 1;
+            let cYear = currentDate.getFullYear();
+            uploaded = cDay + "/" + cMonth + "/" + cYear
+          }
+          const res = await db.query(
                 `INSERT INTO pets
                 (organization_id, 
                   user_id, 
@@ -106,18 +107,19 @@ class Pet {
                   uploaded
                 ]
             );
-            const pet = res.rows[0];
-            await Tags.addAllToPet(pet.id, tags)
-            pet.tags = await Tags.getByPetId(pet.id)
-            await Breeds.addAllToPet(pet.id, breeds)
-            pet.breeds = await Breeds.getByPetId(pet.id)
-            await Environments.addAllToPet(pet.id, environments)
-            pet.environments = await Environments.getByPetId(pet.id)
-            await Attributes.addAllToPet(pet.id, attributes)
-            pet.attributes = await Attributes.getByPetId(pet.id)
-            return pet;
-        
-    }
+      const pet = res.rows[0];
+      await Tags.addAllToPet(pet.id, tags)
+      await Breeds.addAllToPet(pet.id, breeds)
+      await Environments.addAllToPet(pet.id, environments)
+      await Attributes.addAllToPet(pet.id, attributes)
+
+      pet.tags = await Tags.getByPetId(pet.id)
+      pet.breeds = await Breeds.getByPetId(pet.id)
+      pet.environments = await Environments.getByPetId(pet.id)
+      pet.attributes = await Attributes.getByPetId(pet.id)
+
+      return pet;
+  }
 
     /** Find all pets.
    *
@@ -299,10 +301,17 @@ class Pet {
    */
 
   static async update(id, data) {
+    let pet;
     if(data.id || data.organizationId || data.userId || data.uploaded) throw new ForbiddenError("Attempt to change columns that aren't allowed to be change")
-
+    const petData = {...data}
+    delete petData.environments;
+    delete petData.breeds;
+    delete petData.tags;
+    delete petData.attributes;
+    let dataNum = [...Object.keys(petData)].length
+    if(dataNum > 0){
     const { setCols, values } = sqlForPartialUpdate(
-        data,
+        petData,
         {
           organizationId: "organization_id",
           userId: "user_id",
@@ -330,9 +339,35 @@ class Pet {
                         status,
                         uploaded`;
     const result = await db.query(querySql, [...values, id]);
-    const pet = result.rows[0];
+    pet = result.rows[0];
+    } else {
+      pet = await Pet.get(id)
+    }
 
     if (!pet) throw new NotFoundError(`No pet with id: ${id}`);
+
+    if(data.tags){
+      await Tags.addAllToPet(id, data.tags)
+    }
+    if(data.breeds){
+      await Breeds.addAllToPet(id, data.breeds)
+    }
+    if(data.environments){
+      await Environments.addAllToPet(id, data.environments)
+    }
+    if(data.attributes){
+      await Attributes.addAllToPet(id, data.attributes)
+    }
+
+    const tags = await Tags.getByPetId(id);
+    const attributes = await Attributes.getByPetId(id);
+    const breeds = await Breeds.getByPetId(id)
+    const environments = await Environments.getByPetId(id);
+    pet.tags = tags
+    pet.attributes = attributes
+    pet.breeds = breeds
+    pet.environments = environments
+    console.log(pet)
 
     return pet;
   }

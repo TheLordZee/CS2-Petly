@@ -5,9 +5,8 @@
 const jsonschema = require("jsonschema");
 
 const express = require("express");
-const { ensureLoggedIn, isUser, isAdminOrUser, ensureAdmin } = require("../middleware/auth");
+const { ensureLoggedIn, isAdminOrUser } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
-const User = require("../models/user");
 const Pet = require("../models/pet")
 const petNewSchema = require("../schemas/petNew.json");
 const petUpdateSchema = require("../schemas/petUpdate.json");
@@ -37,7 +36,7 @@ const router = express.Router();
         const errs = validator.errors.map(e => e.stack);
         throw new BadRequestError(errs);
       }
-  
+      
       const pet = await Pet.create(req.body)
       return res.status(201).json({ pet });
     } catch (err) {
@@ -46,136 +45,85 @@ const router = express.Router();
 });
 
 /** GET / => { pets: [ { 
- *      username,
-   *    fullName, 
-   *    username,
-   *    address,
-   *    email, 
-   *    phone,
-   *    birthDay,
-   *    profilePic,
-   *    pets
+ *      organizationId, userId, url, type, species, age, sex, size, coat, colors, name, description, photos, videos, status, uploaded, tags, breeds, environments, attributes 
    * }, ... ] }
  *
- * Returns list of all users.
+ * Returns list of all pets.
  *
- * Authorization required: Admin
  **/
 
- router.get("/", ensureAdmin, async function (req, res, next) {
+ router.get("/", async function (req, res, next) {
     try {
-      const users = await User.findAll();
-      return res.json({ users });
-    } catch (err) {
-      return next(err);
-    }
-});
-
-  /** GET /[username] => { user }
- *
- * Returns {  username,
-   *    fullName, 
-   *    username,
-   *    address,
-   *    email, 
-   *    phone,
-   *    birthDay,
-   *    profilePic,
-   *    pets 
-   * }
-   * 
-   * Where pets is [{
-   *    id, organizationId, userId,  url, type, species,  age, sex, size, coat, colors, name, description, photos, videos, status, uploaded
-   * }, ...] 
- *
- * Authorization required: none
- **/
-
-router.get("/:username", async function (req, res, next) {
-    try {
-      const user = await User.get(req.params.username);
-      const pets = await Pet.getPetsByUploader(user.id, "user")
-      user.pets = pets;
-      return res.json({ user });
-    } catch (err) {
-      return next(err);
-    }
-});
-
-/** GET /[username]/pets => { pets }
- *
- * Returns {  
- *      pets: [{
-   *    id, organizationId, userId,  url, type, species,  age, sex, size, coat, colors, name, description, photos, videos, status, uploaded
-   * }, ...]
-   * }
- *
- * Authorization required: none
- **/
-
- router.get("/:username/pets", async function (req, res, next) {
-    try {
-      const user = await User.get(req.params.username);
-      const pets = await Pet.getPetsByUploader(user.id, "user")
+      const pets = await Pet.findAll();
       return res.json({ pets });
     } catch (err) {
       return next(err);
     }
 });
 
-/** PATCH /[username] { user } => { user }
+  /** GET /[id] => { pet }
  *
- * Data can include:
- *   { 
-   *    firstName, 
-   *    lastName,
-   *    username,
-   *    address,
-   *    email, 
-   *    phone,
-   *    birthDay,
-   *    profilePic 
+ * Returns {  
+ *  organizationId, userId, url, type, species, age, sex, size, coat, colors, name, description, photos, videos, status, uploaded, tags, breeds, environments, attributes 
    * }
- *
- * Returns { 
- *  username,
-   *    firstName, 
-   *    lastName,
-   *    username,
-   *    address,
-   *    email, 
-   *    phone,
-   *    birthDay,
-   *    profilePic
-   *  }
- *
- * Authorization required:  user or admin
+   *
+   *  Where tags, attributes, breeds, and environments are [name, ...]
+   * 
+ * Authorization required: none
  **/
 
- router.patch("/:username", isAdminOrUser, async function (req, res, next) {
+router.get("/:id", async function (req, res, next) {
     try {
-      const validator = jsonschema.validate(req.body, userUpdateSchema);
-      if (!validator.valid) {
-        const errs = validator.errors.map(e => e.stack);
-        throw new BadRequestError(errs);
-      }
-  
-      const user = await User.update(req.params.username, req.body);
-      return res.json({ user });
+      const pet = await Pet.get(req.params.id);
+      return res.json({ pet });
     } catch (err) {
       return next(err);
     }
 });
 
-/** DELETE /[username]  =>  { deleted: username }
+/** PATCH /[username]/pets/[petId] { pet } => { pet }
+ *
+ * Can only edit pets that are uploaded by users
+ * 
+ * Data can include:
+ *   { 
+   *    url, type, species, age, sex, size, coat, colors, name, description, photos, videos, status, uploaded, tags, breeds, environments, attributes 
+   * }
+ *
+ * Returns { 
+*     organizationId, userId, url, type, species, age, sex, size, coat, colors, name, description, photos, videos, status, uploaded, tags, breeds, environments, attributes 
+*  }
+ *
+ * Where tags, attributes, breeds, and environments are [name, ...]
+ * 
+ * Authorization required:  user or admin
+ **/
+
+ router.patch("/:username/:id", isAdminOrUser, async function (req, res, next) {
+    try {
+      const validator = jsonschema.validate(req.body, petUpdateSchema);
+      if (!validator.valid) {
+        const errs = validator.errors.map(e => e.stack);
+        throw new BadRequestError(errs);
+      }
+  
+      const pet = await Pet.update(req.params.id, req.body);
+      return res.json({ pet });
+    } catch (err) {
+        console.log(err)
+      return next(err);
+    }
+});
+
+/** DELETE /[username]/[id]  =>  { deleted: id }
  *
  * Authorization required:  user or admin
  **/
 
- router.delete("/:username", isAdminOrUser, async function (req, res, next) {
+ router.delete("/:username/:id", isAdminOrUser, async function (req, res, next) {
     try {
-      await User.remove(req.params.username);
-      return res.json({ deleted: req.params.username });
+      await Pet.remove(req.params.id);
+      return res.json({ deleted: req.params.id });
     } catch (err) {
       return next(err);
     }
