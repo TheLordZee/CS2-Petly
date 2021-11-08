@@ -315,19 +315,4 @@ class User {
   }
 }
 
-// try{
-//   User.register({
-//     username: "Admin",
-//     firstName: "Admin",
-//     lastName: "Admin",
-//     email: "admin3@user.com",
-//     password: "adminPassword",
-//     address: "Indiana",
-//     phone: "3333333333",
-//     birthDay: "11/04/2021",
-//   });
-// } catch(e){
-
-// }
-
 module.exports = User;

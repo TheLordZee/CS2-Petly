@@ -1,0 +1,73 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://example.com/example.json",
+    "type": "object",
+    "title": "The root schema",
+    "description": "The root schema comprises the entire JSON document.",
+    "default": {},
+    "examples": [
+        {
+            "type": "user",
+            "reviewerId": 1,
+            "posterId": 2,
+            "rating": -1,
+            "review": "Yes"
+        }
+    ],
+    "required": [
+        "type",
+        "posterId",
+        "rating",
+        "review"
+    ],
+    "properties": {
+        "type": {
+            "$id": "#/properties/type",
+            "default": "",
+            "description": "An explanation about the purpose of this instance.",
+            "examples": [
+                "user"
+            ],
+            "title": "The type schema",
+            "enum": [
+                "user",
+                "organization"
+            ],
+            "type": "string"
+        },
+        "posterId": {
+            "$id": "#/properties/posterId",
+            "default": 0,
+            "description": "An explanation about the purpose of this instance.",
+            "examples": [
+                2
+            ],
+            "title": "The posterId schema",
+            "type": [
+                "integer",
+                "string"
+            ]
+        },
+        "rating": {
+            "$id": "#/properties/rating",
+            "type": "integer",
+            "title": "The rating schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": 0,
+            "examples": [
+                -1
+            ]
+        },
+        "review": {
+            "$id": "#/properties/review",
+            "type": "string",
+            "title": "The review schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "Yes"
+            ]
+        }
+    },
+    "additionalProperties": true
+}

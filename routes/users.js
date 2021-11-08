@@ -5,7 +5,7 @@
 const jsonschema = require("jsonschema");
 
 const express = require("express");
-const { ensureLoggedIn, isUser, isAdminOrUser, ensureAdmin } = require("../middleware/auth");
+const { isAdminOrUser, ensureAdmin } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
 const User = require("../models/user");
 const Pet = require("../models/pet")
@@ -36,7 +36,7 @@ const router = express.Router();
  * Authorization required: Admin
  **/
 
- router.post("/", ensureAdmin, async function (req, res, next) {
+router.post("/", ensureAdmin, async function (req, res, next) {
     try {
       const validator = jsonschema.validate(req.body, userNewSchema);
       if (!validator.valid) {
@@ -69,7 +69,7 @@ const router = express.Router();
  * Authorization required: Admin
  **/
 
- router.get("/", ensureAdmin, async function (req, res, next) {
+router.get("/", ensureAdmin, async function (req, res, next) {
     try {
       const users = await User.findAll();
       return res.json({ users });
@@ -120,7 +120,7 @@ router.get("/:username", async function (req, res, next) {
  * Authorization required: none
  **/
 
- router.get("/:username/pets", async function (req, res, next) {
+router.get("/:username/pets", async function (req, res, next) {
     try {
       const user = await User.get(req.params.username);
       const pets = await Pet.getPetsByUploader(user.id, "user")
@@ -159,7 +159,7 @@ router.get("/:username", async function (req, res, next) {
  * Authorization required:  user or admin
  **/
 
- router.patch("/:username", isAdminOrUser, async function (req, res, next) {
+router.patch("/:username", isAdminOrUser, async function (req, res, next) {
     try {
       const validator = jsonschema.validate(req.body, userUpdateSchema);
       if (!validator.valid) {
@@ -179,7 +179,7 @@ router.get("/:username", async function (req, res, next) {
  * Authorization required:  user or admin
  **/
 
- router.delete("/:username", isAdminOrUser, async function (req, res, next) {
+router.delete("/:username", isAdminOrUser, async function (req, res, next) {
     try {
       await User.remove(req.params.username);
       return res.json({ deleted: req.params.username });

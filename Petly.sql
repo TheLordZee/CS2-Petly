@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS environments CASCADE;
 DROP TABLE IF EXISTS attributes CASCADE;
 DROP TABLE IF EXISTS tags CASCADE;
 DROP TABLE IF EXISTS breeds CASCADE;
+DROP TABLE IF EXISTS user_ratings CASCADE;
+DROP TABLE IF EXISTS organization_ratings CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS pets CASCADE;
 DROP TABLE IF EXISTS organizition_ratings CASCADE;
@@ -45,10 +47,26 @@ CREATE TABLE pets (
   description TEXT,
   photos TEXT,
   videos TEXT,
-  status TEXT NOT NULL DEFAULT "Adoptable",
+  status TEXT DEFAULT 'Adoptable',
   uploaded DATE NOT NULL DEFAULT CURRENT_DATE
   CHECK ((organization_id != NULL OR user_id != NULL) 
     AND NOT (organization_id != NULL AND user_id != NULL))
+);
+
+CREATE TABLE organization_ratings(
+  reviewer_id INT REFERENCES users ON DELETE CASCADE,
+  poster_id TEXT,
+  rating INT NOT NULL,
+  review TEXT,
+  PRIMARY KEY (reviewer_id, poster_id)
+);
+
+CREATE TABLE user_ratings(
+  reviewer_id INT REFERENCES users ON DELETE CASCADE,
+  poster_id INT REFERENCES users ON DELETE CASCADE,
+  rating INT NOT NULL,
+  review TEXT,
+  PRIMARY KEY (reviewer_id, poster_id)
 );
 
 CREATE TABLE tags (
