@@ -315,4 +315,27 @@ class User {
   }
 }
 
+if(process.env.NODE_ENV !== "test"){
+  setUp();
+}
+
+async function setUp(){
+  const adminExists = await User.checkExists(1)
+  if(!adminExists){
+    User.register({
+      firstName: "Admin", 
+      lastName: "Admin", 
+      password: "AdminPass1", 
+      username: "Admin", 
+      address: "Texas", 
+      email: "a@c.com", 
+      phone: "1111111111", 
+      birthDay: "01/01/0001", 
+      profilePic: ""
+    })
+  } else {
+    console.log("Admin already exists")
+  }
+}
+
 module.exports = User;

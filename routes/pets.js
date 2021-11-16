@@ -6,7 +6,7 @@ const jsonschema = require("jsonschema");
 
 const express = require("express");
 const { ensureLoggedIn, isAdminOrUser } = require("../middleware/auth");
-const { BadRequestError } = require("../expressError");
+const { BadRequestError, UnauthorizedError } = require("../expressError");
 const Pet = require("../models/pet")
 const petNewSchema = require("../schemas/petNew.json");
 const petUpdateSchema = require("../schemas/petUpdate.json");
@@ -54,7 +54,8 @@ const router = express.Router();
 
  router.get("/", async function (req, res, next) {
     try {
-      const pets = await Pet.findAll();
+      const filter = req.body.filter;
+      const pets = await Pet.findAll(filter);
       return res.json({ pets });
     } catch (err) {
       return next(err);
@@ -81,7 +82,7 @@ router.get("/:id", async function (req, res, next) {
     }
 });
 
-/** PATCH /[username]/pets/[petId] { pet } => { pet }
+/** PATCH /[petId] { pet } => { pet }
  *
  * Can only edit pets that are uploaded by users
  * 
@@ -99,7 +100,11 @@ router.get("/:id", async function (req, res, next) {
  * Authorization required:  user or admin
  **/
 
- router.patch("/:username/:id", isAdminOrUser, async function (req, res, next) {
+ router.patch("/:id", ensureLoggedIn, async function (req, res, next) {
+    const pet = await Pet.get(req.params.id)
+    if(pet.userId !== req.locals.user.id && pet.userId !== 1){
+      throw new UnauthorizedError(`You aren't allowed to update this pet`);
+    }
     try {
       const validator = jsonschema.validate(req.body, petUpdateSchema);
       if (!validator.valid) {

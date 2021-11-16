@@ -126,6 +126,8 @@ class Pet {
    * Returns [{  
    *    id, organizationId, userId, url, type, species, age, sex, size, coat, colors, name, description, photos, videos, status, uploaded 
    * }, ...]
+   * 
+   * Can filter by tag, breed, attribute, environment, type, species, sex, size, coat
    **/
 
   static async findAll(filter = {}) {

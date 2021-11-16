@@ -3,7 +3,7 @@ require("dotenv").config();
 require("colors");
 const crypto = require("crypto")
 
-const SECRET_KEY = process.env.SECRET_KEY || "{YOUR SECRET KEY}";
+const SECRET_KEY = process.env.SECRET_KEY || "secret-dev";
 
 const PORT = +process.env.PORT || 3001;
 function getDatabaseUri() {
@@ -15,11 +15,12 @@ function getDatabaseUri() {
 const BCRYPT_WORK_FACTOR = process.env.NODE_ENV === "test" ? 1 : 12;
 
 const algorithm = "aes-256-ctr";
-const encryptionKey = "{YOUR KEY HERE}"
+const encryptionKey = "MpKtEsAr1A8RvYDbWBJE1vOxu5kt2Pgr"
 const iv = crypto.randomBytes(16);
 
 console.log("Jobly Config:".green);
 console.log("SECRET_KEY:".yellow, SECRET_KEY);
+                                              
 console.log("PORT:".yellow, PORT.toString());
 console.log("BCRYPT_WORK_FACTOR".yellow, BCRYPT_WORK_FACTOR);
 console.log("Database:".yellow, getDatabaseUri());
