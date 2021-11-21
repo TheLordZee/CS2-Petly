@@ -39,6 +39,7 @@ class Pet {
           photos="", 
           videos="", 
           status="",
+          location="",
           uploaded,
           tags=[],
           breeds=[],
@@ -69,8 +70,9 @@ class Pet {
                   photos, 
                   videos, 
                   status, 
+                  location,
                   uploaded)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
                 RETURNING id,
                     organization_id AS "organizationId", 
                     user_id AS "userId", 
@@ -87,6 +89,7 @@ class Pet {
                     photos, 
                     videos, 
                     status, 
+                    location,
                     uploaded`,
                 [
                   organizationId, 
@@ -104,6 +107,7 @@ class Pet {
                   photos, 
                   videos, 
                   status, 
+                  location,
                   uploaded
                 ]
             );
@@ -130,7 +134,7 @@ class Pet {
    * Can filter by tag, breed, attribute, environment, type, species, sex, size, coat
    **/
 
-  static async findAll(filter = {}) {
+  static async findAll(filter = {}, page = 0) {
     const query = (Object.keys(filter).length > 0) ? makeFilterQuery(filter) : {query:"", vals: []};
     const res = await db.query(
           `SELECT 
@@ -150,9 +154,12 @@ class Pet {
             p.photos, 
             p.videos, 
             p.status, 
+            p.location,
             p.uploaded
            FROM pets AS p
-           ${query.query}`,
+           ${query.query}
+           LIMIT 20
+           OFFSET ${page * 20}`,
           query.vals
     );
 
@@ -179,6 +186,7 @@ class Pet {
         p.photos, 
         p.videos, 
         p.status, 
+        p.location,
         p.uploaded
        FROM pets p
        JOIN pet_${attribute}s pa
@@ -219,6 +227,7 @@ class Pet {
               photos, 
               videos, 
               status, 
+              location,
               uploaded
              FROM pets AS p
              WHERE id = $1`,
@@ -270,6 +279,7 @@ class Pet {
             photos, 
             videos, 
             status, 
+            location,
             uploaded
            FROM pets AS p
            WHERE ${selection} = $1`,
@@ -339,6 +349,7 @@ class Pet {
                         photos,
                         videos,
                         status,
+                        location,
                         uploaded`;
     const result = await db.query(querySql, [...values, id]);
     pet = result.rows[0];

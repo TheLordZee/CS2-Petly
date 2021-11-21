@@ -15,7 +15,7 @@ function getDatabaseUri() {
 const BCRYPT_WORK_FACTOR = process.env.NODE_ENV === "test" ? 1 : 12;
 
 const algorithm = "aes-256-ctr";
-const encryptionKey = "MpKtEsAr1A8RvYDbWBJE1vOxu5kt2Pgr"
+const encryptionKey = "ENTER ENCRYPTION KEY"
 const iv = crypto.randomBytes(16);
 
 console.log("Jobly Config:".green);

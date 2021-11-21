@@ -129,6 +129,12 @@
                 "photos1"
             ]
         },
+        "location": {
+            "type": "string",
+            "examples": [
+                "TX"
+            ]
+        },
         "videos": {
             "type": "string",
             "examples": [

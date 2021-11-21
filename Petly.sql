@@ -28,7 +28,7 @@ CREATE TABLE users (
   profile_pic TEXT
 );
 
-CREATE TYPE SEX AS ENUM ('Male', 'Female', 'Unknown');
+CREATE TYPE SEX AS ENUM ('male', 'female', 'unknown');
 CREATE TYPE ANIMAL_TYPE AS ENUM ('dog', 'cat', 'rabbit', 'small & furry', 'horse', 'bird', 'scales, fins & other', 'barnyard');
 
 CREATE TABLE pets (
@@ -42,13 +42,14 @@ CREATE TABLE pets (
   sex SEX NOT NULL,
   size TEXT NOT NULL,
   coat TEXT NOT NULL,
-  colors TEXT NOT NULL,
+  colors JSON NOT NULL,
   name TEXT DEFAULT 'N/A',
   description TEXT,
-  photos TEXT,
-  videos TEXT,
+  photos JSON,
+  videos JSON,
   status TEXT DEFAULT 'Adoptable',
-  uploaded DATE NOT NULL DEFAULT CURRENT_DATE
+  location TEXT NOT NULL,
+  uploaded TEXT NOT NULL DEFAULT CURRENT_DATE
   CHECK ((organization_id != NULL OR user_id != NULL) 
     AND NOT (organization_id != NULL AND user_id != NULL))
 );

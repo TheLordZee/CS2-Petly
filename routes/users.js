@@ -5,7 +5,7 @@
 const jsonschema = require("jsonschema");
 
 const express = require("express");
-const { isAdminOrUser, ensureAdmin } = require("../middleware/auth");
+const { isAdminOrUser, ensureAdmin, isUser } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
 const User = require("../models/user");
 const Pet = require("../models/pet")
@@ -92,7 +92,7 @@ router.get("/", ensureAdmin, async function (req, res, next) {
    * }
    * 
    * Where pets is [{
-   *    id, organizationId, userId,  url, type, species,  age, sex, size, coat, colors, name, description, photos, videos, status, uploaded
+   *    id, organizationId, userId,  url, type, species,  age, gender, size, coat, colors, name, description, photos, videos, status, uploaded
    * }, ...] 
  *
  * Authorization required: none
@@ -179,7 +179,7 @@ router.patch("/:username", isAdminOrUser, async function (req, res, next) {
  * Authorization required:  user or admin
  **/
 
-router.delete("/:username", isAdminOrUser, async function (req, res, next) {
+router.delete("/:username", isUser, async function (req, res, next) {
     try {
       await User.remove(req.params.username);
       return res.json({ deleted: req.params.username });

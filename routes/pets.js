@@ -31,6 +31,7 @@ const router = express.Router();
 
  router.post("/", ensureLoggedIn, async function (req, res, next) {
     try {
+      console.log(res.body)
       const validator = jsonschema.validate(req.body, petNewSchema);
       if (!validator.valid) {
         const errs = validator.errors.map(e => e.stack);
@@ -55,7 +56,8 @@ const router = express.Router();
  router.get("/", async function (req, res, next) {
     try {
       const filter = req.body.filter;
-      const pets = await Pet.findAll(filter);
+      const page = (req.body.page) ? +req.body.page : 0;
+      const pets = await Pet.findAll(filter, page);
       return res.json({ pets });
     } catch (err) {
       return next(err);

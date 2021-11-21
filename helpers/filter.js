@@ -68,7 +68,7 @@ function makeFilterQuery(filter){
                 }
                 break;
             default:
-                if(["type", "species", "sex", "size", "coat"].includes(keys[i])){
+                if(["type", "species", "gender", "size", "coat"].includes(keys[i])){
                     for(let j = 0; j < filter[keys[i]].length; j++){
                         if(filter[keys[i]][j-1] !== undefined){
                             res += " AND "
